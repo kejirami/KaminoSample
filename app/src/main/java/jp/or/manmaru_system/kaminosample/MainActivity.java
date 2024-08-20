@@ -3,13 +3,14 @@ package jp.or.manmaru_system.kaminosample;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 
 import android.app.Activity;
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -21,12 +22,16 @@ import android.widget.Toast;
 
 import org.riversun.promise.Promise;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.OutputStream;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,10 +59,30 @@ public class MainActivity extends AppCompatActivity implements GetRecords.OnGetR
     private ImageView ivTakePicture;
     private LocalDB mDb;
     private ToneGenerator mToneGenerator;
+    private File mImage;
 
     private final ActivityResultLauncher<Intent> mArl = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getResultCode() == Activity.RESULT_OK) {
+
+                    PutFIle pf = new PutFIle();
+                    pf.setOnPutFIleListener(MainActivity.this);
+                    try (FileInputStream is = new FileInputStream(mImage);) {
+                        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                        byte[] buffer = new byte[1024];
+                        while(true) {
+                            int len = is.read(buffer);
+                            if(len < 0) break;
+                            bos.write(buffer, 0, len);
+                        }
+                        Parameter param = new Parameter("192.168.0.100", "kamino","12345678","test/aaa.jpg",bos.toByteArray());
+                        pf.execute(param);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+
+/*
                     Intent data = result.getData();
                     if (data != null && data.getExtras() != null) {
                         Bitmap bmp = (Bitmap) data.getExtras().get("data");
@@ -73,10 +98,10 @@ public class MainActivity extends AppCompatActivity implements GetRecords.OnGetR
                         pf.setOnPutFIleListener(MainActivity.this);
                         ByteArrayOutputStream bos = new ByteArrayOutputStream();
                         bmp.compress(Bitmap.CompressFormat.JPEG, 100, bos);
-                        Parameter param = new Parameter("192.168.0.100", "kamino","12345678","test/aaa.jpg",bos.toByteArray());
+                        Parameter param = new Parameter("192.168.0.100", "papa","ascapbmi","test/aaa.jpg",bos.toByteArray());
                         pf.execute(param);
-
                     }
+*/
                 }
             });
     @Override
@@ -161,6 +186,17 @@ public class MainActivity extends AppCompatActivity implements GetRecords.OnGetR
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                File dir = getFilesDir();
+                dir = new File(dir.getPath()+"/images/");
+                if(!dir.exists()) dir.mkdir();
+                mImage = null;
+                try {
+                    mImage = File.createTempFile("aaa",".jpg",dir);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                Uri uri = FileProvider.getUriForFile(MainActivity.this,  "jp.or.manmaru_system.fileprovider", mImage);
+                intent.putExtra(MediaStore.EXTRA_OUTPUT,uri);
                 mArl.launch(intent);
             }
         });

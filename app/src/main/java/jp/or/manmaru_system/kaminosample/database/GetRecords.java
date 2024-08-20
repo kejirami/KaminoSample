@@ -29,9 +29,9 @@ public class GetRecords extends AsyncTask<GetRecords.Parameter, Void, RespData<A
     protected RespData<ArrayList<ArrayList<String>>> doInBackground(Parameter... parameters) {
         RespData<ArrayList<ArrayList<String>>> respData = new RespData();
 //        String url = "jdbc:sqlserver://192.168.0.100:1433;databaseName=Test;encrypt=false;trustServerCertificate=true;";
-        String url = "jdbc:jtds:sqlserver://192.168.0.100:1433/Test;";
+        String url = "jdbc:jtds:sqlserver://192.168.0.100:1433/Test;ssl=require;";
         String user = "sa";
-        String password = "12345678";
+        String password = "ascapbmi";
         Connection conn = null;
         try {
 //            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
