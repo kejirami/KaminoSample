@@ -5,9 +5,6 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-import java.sql.Date;
-
-
 @Entity(tableName = "Works")
 public class Work {
     @PrimaryKey(autoGenerate = true)
@@ -15,16 +12,24 @@ public class Work {
     @ColumnInfo(name = "id")
     private int id;
 
-    @ColumnInfo(name = "memo")
-    private String memo;
+    @ColumnInfo(name = "number")
+    private String number;
 
-    public Work(String memo) {
-        this.memo = memo;
+    @ColumnInfo(name = "startTime")
+    private String startTime;
+
+    public Work(String number,String startTime) {
+        this.number = number;
+        this.startTime = startTime;
     }
 
     public int getId(){return this.id;}
     public void setId(int id){this.id = id;}
 
-    public String getMemo(){return this.memo;}
-    public void setMemo(String memo){this.memo = memo;}
+    public String getNumber(){return this.number;}
+    public void setNumber(String number){this.number = number;}
+
+    public String getStartTime(){return this.startTime;}
+    public void setStartTime(String startTime){this.startTime = startTime;}
+
 }

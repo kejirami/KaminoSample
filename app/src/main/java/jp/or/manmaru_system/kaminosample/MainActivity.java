@@ -33,7 +33,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import jcifs.smb.SmbFile;
@@ -54,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements GetRecords.OnGetR
     private Button btnFileSave;
     private Button btnSelectLocal;
     private Button btnTakePicture;
+    private Button btnNext;
 
     private EditText etBarCode;
     private ImageView ivTakePicture;
@@ -119,6 +122,7 @@ public class MainActivity extends AppCompatActivity implements GetRecords.OnGetR
         btnTakePicture = (Button)findViewById(R.id.btn_takepicture);
         etBarCode = (EditText)findViewById(R.id.et_barcode);
         ivTakePicture = (ImageView)findViewById(R.id.iv_takepicture);
+        btnNext = (Button)findViewById(R.id.btn_next);
 
         etBarCode.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -166,7 +170,8 @@ public class MainActivity extends AppCompatActivity implements GetRecords.OnGetR
             public void onClick(View view) {
                 WorkDAO dao = mDb.workDao();
                 Promise.resolve().then(new Promise((action,data)->{
-                    dao.insert(new Work("Data1"));
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+                    dao.insert(new Work("1234567",sdf.format(new Date())));
                     List<Work> works = dao.getAll();
                     action.resolve(works);
                 })).then(new Promise((action,data)->{
@@ -174,7 +179,7 @@ public class MainActivity extends AppCompatActivity implements GetRecords.OnGetR
                         @Override
                         public void run() {
                             for(Work w : (List<Work>)data){
-                                Toast.makeText(MainActivity.this,w.getMemo(),Toast.LENGTH_LONG).show();
+                                Toast.makeText(MainActivity.this,w.getStartTime(),Toast.LENGTH_LONG).show();
                             }
                             action.resolve();
                         }
@@ -198,6 +203,14 @@ public class MainActivity extends AppCompatActivity implements GetRecords.OnGetR
                 Uri uri = FileProvider.getUriForFile(MainActivity.this,  "jp.or.manmaru_system.fileprovider", mImage);
                 intent.putExtra(MediaStore.EXTRA_OUTPUT,uri);
                 mArl.launch(intent);
+            }
+        });
+
+        btnNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, SubActivity.class);
+                startActivity(intent);
             }
         });
     }
