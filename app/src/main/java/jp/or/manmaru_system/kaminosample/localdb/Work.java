@@ -15,11 +15,15 @@ public class Work {
     @ColumnInfo(name = "number")
     private String number;
 
+    @ColumnInfo(name = "userId")
+    private int userId;
+
     @ColumnInfo(name = "startTime")
     private String startTime;
 
-    public Work(String number,String startTime) {
+    public Work(String number,int userId,String startTime) {
         this.number = number;
+        this.userId = userId;
         this.startTime = startTime;
     }
 
@@ -29,6 +33,8 @@ public class Work {
     public String getNumber(){return this.number;}
     public void setNumber(String number){this.number = number;}
 
+    public int getUserId(){return this.userId;}
+    public void setUserId(int userid){this.userId = userid;}
     public String getStartTime(){return this.startTime;}
     public void setStartTime(String startTime){this.startTime = startTime;}
 

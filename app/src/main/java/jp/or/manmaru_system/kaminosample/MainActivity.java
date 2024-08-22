@@ -15,9 +15,11 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import org.riversun.promise.Promise;
@@ -46,6 +48,8 @@ import jp.or.manmaru_system.kaminosample.cifs.Parameter;
 import jp.or.manmaru_system.kaminosample.cifs.PutFIle;
 import jp.or.manmaru_system.kaminosample.database.GetRecords;
 import jp.or.manmaru_system.kaminosample.localdb.LocalDB;
+import jp.or.manmaru_system.kaminosample.localdb.User;
+import jp.or.manmaru_system.kaminosample.localdb.UserDAO;
 import jp.or.manmaru_system.kaminosample.localdb.Work;
 import jp.or.manmaru_system.kaminosample.localdb.WorkDAO;
 
@@ -59,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements GetRecords.OnGetR
     private Button btnNext;
 
     private EditText etBarCode;
+    private Spinner spUser;
     private ImageView ivTakePicture;
     private LocalDB mDb;
     private ToneGenerator mToneGenerator;
@@ -123,7 +128,27 @@ public class MainActivity extends AppCompatActivity implements GetRecords.OnGetR
         etBarCode = (EditText)findViewById(R.id.et_barcode);
         ivTakePicture = (ImageView)findViewById(R.id.iv_takepicture);
         btnNext = (Button)findViewById(R.id.btn_next);
+        spUser = (Spinner) findViewById(R.id.sp_users);
 
+        UserDAO dao = mDb.getUserDao();
+        Promise.resolve().then(new Promise((action, data)->{
+            List<User> users = dao.getAll();
+            UserAdapter adapter = new UserAdapter(MainActivity.this, users);
+            spUser.setAdapter(adapter);
+            action.resolve();
+        })).start();
+
+        spUser.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                Toast.makeText(MainActivity.this,String.valueOf(((User)adapterView.getItemAtPosition(i)).getId()),Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
         etBarCode.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean b) {
@@ -168,10 +193,10 @@ public class MainActivity extends AppCompatActivity implements GetRecords.OnGetR
         btnSelectLocal.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                WorkDAO dao = mDb.workDao();
+                WorkDAO dao = mDb.getWorkDao();
                 Promise.resolve().then(new Promise((action,data)->{
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");
-                    dao.insert(new Work("1234567",sdf.format(new Date())));
+                    dao.insert(new Work("1234567",1007,sdf.format(new Date())));
                     List<Work> works = dao.getAll();
                     action.resolve(works);
                 })).then(new Promise((action,data)->{
@@ -213,6 +238,7 @@ public class MainActivity extends AppCompatActivity implements GetRecords.OnGetR
                 startActivity(intent);
             }
         });
+
     }
 
     @Override

@@ -9,9 +9,10 @@ import androidx.room.RoomDatabase;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Database(entities = {Work.class}, version = 1, exportSchema = false)
+@Database(entities = {Work.class,User.class}, version = 1, exportSchema = false)
 public abstract class LocalDB extends RoomDatabase {
-    public abstract WorkDAO workDao();
+    public abstract WorkDAO getWorkDao();
+    public abstract UserDAO getUserDao();
 
     private static volatile LocalDB INSTANCE;
     private static final int NUMBER_OF_THREADS = 4;
@@ -20,7 +21,9 @@ public abstract class LocalDB extends RoomDatabase {
         if (INSTANCE == null) {
             synchronized (LocalDB.class) {
                 if (INSTANCE == null) {
-                    INSTANCE = Room.databaseBuilder(context.getApplicationContext(), LocalDB.class, "LocalDB").build();
+                    INSTANCE = Room.databaseBuilder(context.getApplicationContext(), LocalDB.class, "LocalDB")
+                            .createFromAsset("LocalDB")
+                            .build();
                 }
             }
         }

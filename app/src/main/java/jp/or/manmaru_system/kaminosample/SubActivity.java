@@ -29,7 +29,7 @@ public class SubActivity extends AppCompatActivity {
         rvWorks = findViewById(R.id.WorkList);
         rvWorks.setLayoutManager(new LinearLayoutManager(this));
 
-        WorkDAO dao = mDb.workDao();
+        WorkDAO dao = mDb.getWorkDao();
         Promise.resolve().then(new Promise((action, data)->{
             List<Work> works = dao.getAll();
             WorkRecycleViewAdapter adapter = new WorkRecycleViewAdapter(works);
